@@ -150,11 +150,18 @@ c = 0.28209479177387814
 ```
 """
 function logNormProduct(g1::Gaussian1D, g2::Gaussian1D)
-  # ADD CORRECT CODE HERE
-  return 0.0
+  g1_mean = mean(g1)
+  g1_var = variance(g1)
+  g2_mean = mean(g2)
+  g2_var = variance(g2)
+  fac = log(2*pi*(g1_var+g2_var)) + ((g1_mean-g2_mean)^2)/(g1_var+g2_var)
+  result = - 0.5 * fac
+  # prefac = sqrt(g1.rho*g2.rho/(2*pi*(g1.rho+g2.rho)))
+  #expterm = -g1.tau^2/(2*g1.rho) - g2.tau^2/(2*g2.rho) + ((g1.tau+g2.tau)^2)/(2*g1.rho+2*g2.rho)
+  #result = prefac * exp(expterm)
+  return result
 end
 
-exit()
 """
     logNormRatio(g1,g2)
 
@@ -167,6 +174,20 @@ julia> logNormRatio(Gaussian1D(0,1) / Gaussian1D(0,0.5))
 """
 function logNormRatio(g1::Gaussian1D, g2::Gaussian1D)
     # ADD CORRECT CODE HERE
-    return 0.0
+    g1_mean = mean(g1)
+    g1_var = variance(g1)
+    g2_mean = mean(g2)
+    g2_var = variance(g2)
+    epsilon = eps()
+    
+    logterm = -0.5*log((g2_var-g1_var+epsilon)/(2*pi*g2_var^2))
+    secterm = 0.5 * ((g1_mean-g2_mean)^2)/(g2_var-g1_var+epsilon)
+    if isapprox(g2_var-g1_var, 0.0; atol=eps(Float64), rtol=0)
+      result = 0.0
+    else
+      result = logterm + secterm
+    end
+    
+    return result
 end
 
